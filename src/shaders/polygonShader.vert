@@ -57,7 +57,7 @@ void main(void) {
       cos(a_outline_direction), 
       sin(a_outline_direction)
     ) * u_outline_size * SQRT2;
-    z = (z - 0.5) / float(u_polygon_count); 
+    z = (z - 0.4) / float(u_polygon_count); 
 
     
   }

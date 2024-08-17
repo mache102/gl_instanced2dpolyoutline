@@ -1,5 +1,5 @@
 winres 1920 1080
-window_title gl_poly_outline
+window_title gl_instanced2dpolyoutline
 seed 0
 max_fps 60
 // note: render time (ms) will be measured at or higher than monitor refresh rate if vsync is enabled
