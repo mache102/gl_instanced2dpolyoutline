@@ -30,35 +30,11 @@ Shader* p_shader = nullptr;
 int64_t tick = 0;
 InstancedRender renderManager;
 
-void update() {
-  for (auto& [name, renderer] : renderManager.rendererMap) {
-    std::vector<float>& rotations = renderer->rotations;
-    for (uint32_t i = 0; i < rotations.size(); i++) {
-      rotations[i] += 0.1;
-      if (rotations[i] > 2 * M_PI) {
-        rotations[i] -= 2 * M_PI;
-      }
-    }
-    renderer->updateRotationBuffer();
-  }
-}
-
 float radians(float degrees) {
   return degrees * M_PI / 180.0;
 }
 
-int main(int argc, char** argv) {
-
-  // fixed seed
-  srand(seed);
-  GLFWwindow* window = init_glfw();
-  if (window == nullptr) {
-    return -1;
-  }
-  if (!init_opengl()) {
-    return -1;
-  }
-  parse_config("./config.txt");
+void init() {
 
   renderManager = InstancedRender();
   renderManager.defineShaderUniforms(winres, outlineColor.rgba(true), outlineSize, transitionSmoothness, blendFactor);
@@ -92,8 +68,11 @@ int main(int argc, char** argv) {
   };
   Shader triangleShader = Shader("./src/shaders/polygonShader.vert", "./src/shaders/polygonShader.frag");
   renderManager.addRenderer("triangle", triangleVertices, triangleShader);
+}
 
-  Timer timer_init = Timer("init", true);
+void addPolygons() {
+
+  Timer timer_init = Timer("addPolygonInstances", true);
   for (uint32_t i = 0; i < polygonCount; i++) {
     renderManager.addInstance(
       "star", 
@@ -122,6 +101,35 @@ int main(int argc, char** argv) {
 
   renderManager.updateSharedBuffers();
   timer_init.end();
+}
+
+void update() {
+  for (auto& [name, renderer] : renderManager.rendererMap) {
+    for (float& rotation : renderer->rotations) {
+      rotation += 0.1;
+      if (rotation > 2 * M_PI) {
+        rotation -= 2 * M_PI;
+      }
+    }
+    renderer->updateRotationBuffer();
+  }
+}
+
+int main(int argc, char** argv) {
+
+  // fixed seed
+  srand(seed);
+  GLFWwindow* window = init_glfw();
+  if (window == nullptr) {
+    return -1;
+  }
+  if (!init_opengl()) {
+    return -1;
+  }
+  parse_config("./config.txt");
+
+  init();
+  addPolygons();
 
   Timer render_timer = Timer("render", false);
   Timer update_timer = Timer("update", false);  
